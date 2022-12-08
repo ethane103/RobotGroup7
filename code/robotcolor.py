@@ -1,4 +1,5 @@
 from spike import PrimeHub, ColorSensor, DistanceSensor, MotorPair
+from spike.control import wait_for_seconds
 
 # Initialize the PrimeHub to beep.
 hub = PrimeHub()
@@ -26,6 +27,11 @@ def move(sense_color):
             hub.speaker.beep(60, 1)
             motor_pair.stop()
             break
+        else:
+            motor_pair.stop()
+            hub.speaker.beep(40,1)
+            wait_for_seconds(1)
+            motor_pair.start(0,30)
 
 def get_distance():
     cm = distance_sensor.get_distance_cm()
