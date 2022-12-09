@@ -52,7 +52,7 @@ def rotate_to_yaw(yaw, speed):
     motor_pair.stop()
     return
 
-def rotate_degrees(degrees, speed)
+def rotate_degrees(degrees, speed):
     hub.motion_sensor.reset_yaw_angle()
     rotate_to_yaw(degrees, speed)
     return
