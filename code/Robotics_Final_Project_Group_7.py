@@ -30,10 +30,10 @@ def move(sense_color, range):
         # The direction turned is based on the turn_left flag, which alternates with each turn
         if(get_distance() < range):
             if turn_left:
-                rotate_degrees(-90, 30)
+                rotate_left()
                 turn_left = False
             else:
-                rotate_degrees(90,30)
+                rotate_right()
                 turn_left = True
         else:
             motor_pair.start(0, 30)
@@ -79,9 +79,14 @@ def rotate_to_yaw(yaw, speed):
     motor_pair.stop()
     return
 
-def rotate_degrees(degrees, speed):
+def rotate_right():
     hub.motion_sensor.reset_yaw_angle()
-    rotate_to_yaw(degrees, speed)
+    rotate_to_yaw(90, 15)
+    return
+
+def rotate_left():
+    hub.motion_sensor.reset_yaw_angle()
+    rotate_to_yaw(-90, -15)
     return
 
 
