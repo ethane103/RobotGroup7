@@ -15,13 +15,23 @@ color_sensor = ColorSensor('B')
 
 motor_pair.set_default_speed(30)
 
-def move(sense_color):
+def move(sense_color, range):
 
+    #Alternates so it always turns left then right
+    turn_left = True
+    motor_pair.start(0, 30)
     while True:
-        if get_distance() < 30:
-            motor_pair.stop()
-            motor_pair.move(19, 'cm', steering=100)
-            print("1")
+        #If a wall is withen x distance, turn
+        #The direction turned is based on the turn_left flag, which alternates with each turn
+        if(get_distance() < range):
+            if turn_left:
+                rotate_degrees(-90, 30)
+                turn_left = False
+            else:
+                rotate_degrees(90,30)
+                turn_left = True
+        else:
+            motor_pair.start(0, 30)
         if color_sensor.get_color() == sense_color:
             hub.speaker.beep(60, 1)
             motor_pair.stop()
@@ -34,10 +44,24 @@ def move(sense_color):
             motor_pair.start(0,-30)
             wait_for_seconds(3)
             print("4")
+
 def get_distance():
     cm = distance_sensor.get_distance_cm()
     if isinstance(cm, int):
         return cm
     return 99999999
 
-move('blue')
+def rotate_to_yaw(yaw, speed):
+    
+    while yaw != hub.motion_sensor.get_yaw_angle():
+        motor_pair.start_tank(speed, -speed)
+    motor_pair.stop()
+    return
+
+def rotate_degrees(degrees, speed):
+    hub.motion_sensor.reset_yaw_angle()
+    rotate_to_yaw(degrees, speed)
+    return
+
+
+move('blue', 5)
