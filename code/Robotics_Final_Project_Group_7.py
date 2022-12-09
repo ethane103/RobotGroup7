@@ -26,19 +26,22 @@ def move(sense_color, range):
     while True:
         # Sense the current_color
         current_color = color_sensor.get_color()
+        print(current_color)
         # If a wall is within x distance, turn
         # The direction turned is based on the turn_left flag, which alternates with each turn
         if(get_distance() < range):
             if turn_left:
                 rotate_left()
+                motor_pair.move(3, 'cm', steering=0)
+                rotate_left()
                 turn_left = False
             else:
                 rotate_right()
+                motor_pair.move(3, 'cm', steering=0)
+                rotate_right()
                 turn_left = True
         else:
-            motor_pair.move(20, 'cm', steering=0)
-            rotate_left()
-            turn_left = False
+            motor_pair.start(0,30)
         # If the current color is the one we're searching for, we can stop
         if current_color == sense_color:
             hub.speaker.beep(60, 1)
@@ -46,7 +49,7 @@ def move(sense_color, range):
             break
         # If the current color is not the one we're looking for but the robot has sensed a color that isn't the posterboard
         # that it's searching on, beep to signal that it is incorrect, store it, and then continue on
-        elif current_color != 'white' and current_color != 'None':
+        elif current_color != 'white' and current_color != None:
             motor_pair.stop()
             hub.speaker.beep(44,1)
             color_array.append(current_color)
