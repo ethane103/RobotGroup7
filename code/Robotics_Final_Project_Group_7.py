@@ -36,7 +36,14 @@ def move(sense_color, range):
                 rotate_degrees(90,30)
                 turn_left = True
         else:
-            motor_pair.start(0, 30)
+            if turn_left == True:
+                motor_pair.move(20, 'cm', steering=0)
+                rotate_degrees(-90, 30)
+                turn_left = False
+            else:
+                motor_pair.move(20, 'cm', steering=0)
+                rotate_degrees(90,30)
+                turn_left = True
         # If the current color is the one we're searching for, we can stop
         if current_color == sense_color:
             hub.speaker.beep(60, 1)
@@ -73,7 +80,7 @@ def get_distance():
     return 99999999
 
 def rotate_to_yaw(yaw, speed):
-    
+
     while yaw != hub.motion_sensor.get_yaw_angle():
         motor_pair.start_tank(speed, -speed)
     motor_pair.stop()
