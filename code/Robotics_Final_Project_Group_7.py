@@ -36,14 +36,9 @@ def move(sense_color, range):
                 rotate_right()
                 turn_left = True
         else:
-            if turn_left == True:
-                motor_pair.move(20, 'cm', steering=0)
-                rotate_degrees(-90, 30)
-                turn_left = False
-            else:
-                motor_pair.move(20, 'cm', steering=0)
-                rotate_degrees(90,30)
-                turn_left = True
+            motor_pair.move(20, 'cm', steering=0)
+            rotate_left()
+            turn_left = False
         # If the current color is the one we're searching for, we can stop
         if current_color == sense_color:
             hub.speaker.beep(60, 1)
