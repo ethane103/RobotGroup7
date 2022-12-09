@@ -11,7 +11,9 @@ motor_pair = MotorPair('C','D')
 distance_sensor = DistanceSensor('F')
 
 # And I guess this one is B.
-color_sensor = ColorSensor('B')
+color_sensor1 = ColorSensor('B')
+# two color sensors to improve its searching
+color_sensor2 = ColorSensor('A')
 
 motor_pair.set_default_speed(30)
 
@@ -25,19 +27,22 @@ def move(sense_color, range):
     motor_pair.start(0, 30)
     while True:
         # Sense the current_color
-        current_color = color_sensor.get_color()
+        if turn_left:
+            current_color = color_sensor2.get_color()
+        else:
+            current_color = color_sensor1.get_color()  
         print(current_color)
         # If a wall is within x distance, turn
         # The direction turned is based on the turn_left flag, which alternates with each turn
         if(get_distance() < range):
             if turn_left:
                 rotate_left()
-                motor_pair.move(3, 'cm', steering=0)
+                motor_pair.move(10, 'cm', steering=0)
                 rotate_left()
                 turn_left = False
             else:
                 rotate_right()
-                motor_pair.move(3, 'cm', steering=0)
+                motor_pair.move(10, 'cm', steering=0)
                 rotate_right()
                 turn_left = True
         else:
@@ -95,4 +100,4 @@ def rotate_left():
     return
 
 
-move('blue', 5)
+move('green', 10)
