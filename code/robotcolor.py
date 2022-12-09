@@ -21,18 +21,19 @@ def move(sense_color):
         if get_distance() < 30:
             motor_pair.stop()
             motor_pair.move(19, 'cm', steering=100)
-        else:
-            motor_pair.start(0, 30)
+            print("1")
         if color_sensor.get_color() == sense_color:
             hub.speaker.beep(60, 1)
             motor_pair.stop()
+            print("3")
             break
         else:
             motor_pair.stop()
-            hub.speaker.beep(40,1)
+            hub.speaker.beep(44,1)
             wait_for_seconds(1)
-            motor_pair.start(0,30)
-
+            motor_pair.start(0,-30)
+            wait_for_seconds(3)
+            print("4")
 def get_distance():
     cm = distance_sensor.get_distance_cm()
     if isinstance(cm, int):
