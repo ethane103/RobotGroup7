@@ -1,5 +1,6 @@
 from spike import PrimeHub, ColorSensor, DistanceSensor, MotorPair
 from spike.control import wait_for_seconds
+import random
 
 # Initialize the PrimeHub to beep.
 hub = PrimeHub()
@@ -8,12 +9,14 @@ hub = PrimeHub()
 motor_pair = MotorPair('C','D')
 
 # Why not? It's F now.
-distance_sensor = DistanceSensor('F')
+distance_l = DistanceSensor('F')
+distance_r = DistanceSensor('E')
+distance_f = DistanceSensor('A')
 
 # And I guess this one is B.
-color_sensor1 = ColorSensor('B')
-# two color sensors to improve its searching
-color_sensor2 = ColorSensor('A')
+color_sensor = ColorSensor('B')
+
+
 
 motor_pair.set_default_speed(30)
 
@@ -27,14 +30,11 @@ def move(sense_color, range):
     motor_pair.start(0, 30)
     while True:
         # Sense the current_color
-        if turn_left:
-            current_color = color_sensor2.get_color()
-        else:
-            current_color = color_sensor1.get_color()  
+        current_color = color_sensor.get_color()  
         print(current_color)
         # If a wall is within x distance, turn
         # The direction turned is based on the turn_left flag, which alternates with each turn
-        if(get_distance() < range):
+        if(get_distance(distance_l) < range):
             if turn_left:
                 rotate_left()
                 motor_pair.move(10, 'cm', steering=0)
@@ -65,6 +65,34 @@ def move(sense_color, range):
     # Once finished, play a tone for each non-target color sensed
     previous_colors(color_array)
 
+def backtrack(color_array, range):
+    sense_color = color_array[random.randint(0,1)]
+    rotate_left()
+    rotate_left()
+    motor_pair.start(0,30)
+
+    while True:
+        current_color = color_sensor.get_color()  
+
+        if get_distance(distance_f) < range:
+            rotate_left()
+            motor_pair.start(0,30)
+
+        elif get_distance(distance_r) > range:
+            rotate_right()
+            motor_pair.start(0,30)
+            distance_r.wait_for_distance_closer_than(range, unit='cm', short_range=True)
+
+        if sense_color == current_color:
+            hub.speaker.beep(60, 1)
+            motor_pair.stop()
+            break
+
+
+        
+        
+       
+
 def previous_colors(color_array):
     for color in color_array:
         if color == 'red':
@@ -76,8 +104,8 @@ def previous_colors(color_array):
         else:
             hub.speaker.beep(70,1)
 
-def get_distance():
-    cm = distance_sensor.get_distance_cm()
+def get_distance(sensor):
+    cm = sensor.get_distance_cm()
     if isinstance(cm, int):
         return cm
     return 99999999
