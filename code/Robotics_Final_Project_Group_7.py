@@ -9,8 +9,8 @@ hub = PrimeHub()
 motor_pair = MotorPair('C','D')
 
 # Why not? It's F now.
-distance_l = DistanceSensor('F')
-distance_r = DistanceSensor('E')
+distance_l = DistanceSensor('E')
+#distance_r = DistanceSensor('F')
 distance_f = DistanceSensor('A')
 
 # And I guess this one is B.
@@ -31,22 +31,18 @@ def move(sense_color, range):
     while True:
         # Sense the current_color
         current_color = color_sensor.get_color()  
-        print(current_color)
+        #right_sensor = get_distance(distance_r)
         # If a wall is within x distance, turn
         # The direction turned is based on the turn_left flag, which alternates with each turn
-        if(get_distance(distance_l) < range):
-            if turn_left:
-                rotate_left()
-                motor_pair.move(10, 'cm', steering=0)
-                rotate_left()
-                turn_left = False
-            else:
-                rotate_right()
-                motor_pair.move(10, 'cm', steering=0)
-                rotate_right()
-                turn_left = True
-        else:
+        if(get_distance(distance_l) > range * 2):
+            wait_for_seconds(.9)
+            rotate_left()
             motor_pair.start(0,30)
+            wait_for_seconds(.9)
+            #Move forward a bit while still sensing the front but not the back
+        elif(get_distance(distance_f) < range):
+            rotate_right()
+        motor_pair.start(0,30)
         # If the current color is the one we're searching for, we can stop
         if current_color == sense_color:
             hub.speaker.beep(60, 1)
@@ -54,15 +50,10 @@ def move(sense_color, range):
             break
         # If the current color is not the one we're looking for but the robot has sensed a color that isn't the posterboard
         # that it's searching on, beep to signal that it is incorrect, store it, and then continue on
+
         elif current_color != 'white' and current_color != None:
-            motor_pair.stop()
             hub.speaker.beep(44,1)
             color_array.append(current_color)
-            wait_for_seconds(1)
-            motor_pair.start(0, 30)
-            # Keeps the robot from immediately sensing the color again and stopping to beep and store it
-            wait_for_seconds(1)
-    # Once finished, play a tone for each non-target color sensed
     previous_colors(color_array)
 
 def backtrack(color_array, range):
