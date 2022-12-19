@@ -10,7 +10,7 @@ motor_pair = MotorPair('C','D')
 
 # Why not? It's F now.
 distance_l = DistanceSensor('E')
-#distance_r = DistanceSensor('F')
+distance_r = DistanceSensor('F')
 distance_f = DistanceSensor('A')
 
 # And I guess this one is B.
@@ -34,7 +34,7 @@ def move(sense_color, range):
         #right_sensor = get_distance(distance_r)
         # If a wall is within x distance, turn
         # The direction turned is based on the turn_left flag, which alternates with each turn
-        if(get_distance(distance_l) > range * 2):
+        if(get_distance(distance_l) > (range * 4) and not get_distance(distance_f) < range):
             wait_for_seconds(.9)
             rotate_left()
             motor_pair.start(0,30)
@@ -43,18 +43,21 @@ def move(sense_color, range):
         elif(get_distance(distance_f) < range):
             rotate_right()
         motor_pair.start(0,30)
-        # If the current color is the one we're searching for, we can stop
-        if current_color == sense_color:
-            hub.speaker.beep(60, 1)
-            motor_pair.stop()
-            break
         # If the current color is not the one we're looking for but the robot has sensed a color that isn't the posterboard
         # that it's searching on, beep to signal that it is incorrect, store it, and then continue on
 
-        elif current_color != 'white' and current_color != None:
+        if current_color != 'white' and current_color != None and (current_color not in color_array):
+            motor_pair.stop()
             hub.speaker.beep(44,1)
+            wait_for_seconds(1)
             color_array.append(current_color)
-    previous_colors(color_array)
+            motor_pair.start(0,30)
+            if current_color == sense_color:
+                motor_pair.stop()
+                hub.speaker.beep(60, 1)
+                hub.speaker.beep(60, 1)
+                break
+    backtrack(color_array, 10)
 
 def backtrack(color_array, range):
     sense_color = color_array[random.randint(0,1)]
@@ -64,19 +67,21 @@ def backtrack(color_array, range):
 
     while True:
         current_color = color_sensor.get_color()  
-
-        if get_distance(distance_f) < range:
-            rotate_left()
-            motor_pair.start(0,30)
-
-        elif get_distance(distance_r) > range:
+        if(get_distance(distance_r) > (range * 4)  and not get_distance(distance_f) < range):
+            wait_for_seconds(.9)
             rotate_right()
             motor_pair.start(0,30)
-            distance_r.wait_for_distance_closer_than(range, unit='cm', short_range=True)
-
-        if sense_color == current_color:
-            hub.speaker.beep(60, 1)
+            wait_for_seconds(.9)
+            #Move forward a bit while still sensing the front but not the back
+        elif(get_distance(distance_f) < range):
+            rotate_left()
+        motor_pair.start(0,30)
+        # If the current color is the one we're searching for, we can stop
+        if current_color == sense_color:
             motor_pair.stop()
+            hub.speaker.beep(60, 1)
+            hub.speaker.beep(60, 1)
+            hub.speaker.beep(80, 1)
             break
 
 
